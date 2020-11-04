@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace ShopClient_MVC.Models
+{
+    public class Customer
+    {
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string PhoneNumber { get; set; }
+        public bool Gender { get; set; }// true is male and  false is female
+        public string Address { get; set; }
+    }
+}

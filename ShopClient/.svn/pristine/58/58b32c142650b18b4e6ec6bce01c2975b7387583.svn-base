@@ -1,0 +1,73 @@
+﻿using IBatisNet.DataMapper;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.ServiceModel;
+using System.Web;
+
+namespace ShopBridgeWcf.Models.Dao
+{
+    public class ItemDao
+    {
+        //Singleton Pattern
+        private static ItemDao instance = null;
+        public static ItemDao GetInstance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new ItemDao();
+                }
+                try
+                {
+                    if (mapper == null)
+                    {
+                        mapper = Mapper.Instance();
+                        //load db config 
+                        string con = System.Configuration.ConfigurationManager.ConnectionStrings["dbconnection"].ConnectionString;
+                        //set db connectstring
+                        mapper.DataSource.ConnectionString = con;
+                    }
+                }
+                catch
+                {
+                    mapper = null;
+                }
+                return instance;
+            }
+        }
+
+        private static ISqlMapper mapper = null;
+
+        public int FindItem(int id)
+        {
+            try 
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("ID", id);
+                return mapper.QueryForObject<int>("FindItemEntity", parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public void UpdateAmountAvailableItem(int amount, int id)
+        {
+            try
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+                parameters.Add("AvailbleAmount", amount);
+                parameters.Add("ID", id);
+                mapper.Update("UpdateAmountAvailableItemEntity", parameters);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+}

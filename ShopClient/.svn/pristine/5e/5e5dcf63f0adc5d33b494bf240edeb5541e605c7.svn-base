@@ -1,0 +1,54 @@
+﻿using IBatisNet.DataMapper;
+using ShopBridgeWcf.Models.Entity;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace ShopBridgeWcf.Models.Dao
+{
+    public sealed class OrderInfoDao
+    {
+        //Singleton Pattern
+        private static OrderInfoDao instance = null;
+        private static ISqlMapper mapper = null;
+        public static OrderInfoDao GetInstance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new OrderInfoDao();
+                }
+                try
+                {
+                    if (mapper == null)
+                    {
+                        mapper = Mapper.Instance();
+                        //load db config 
+                        string con = System.Configuration.ConfigurationManager.ConnectionStrings["dbconnection"].ConnectionString;
+                        //set db connectstring
+                        mapper.DataSource.ConnectionString = con;
+                    }
+                }
+                catch(Exception ex)
+                {
+                    mapper = null;
+                }
+                return instance;
+            }
+        }
+
+        public void AddNewOrder(OrderInfoEntity orderInfoEntity)
+        {
+            try
+            {
+                mapper.Insert("AddNewOrder", orderInfoEntity);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+    }
+}

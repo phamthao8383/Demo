@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<sqlMap namespace="ShopBridgeWcf" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<alias>
+		<typeAlias alias="OrderInfoEntity" type="ShopBridgeWcf.Models.Entity.OrderInfoEntity, ShopBridgeWcf"/>
+	</alias>
+	<resultMaps>
+		<resultMap id="OrderInfoEntity" class="OrderInfoEntity">
+			<result property="ItemID" column="ITEM_ID" />
+			<result property="CustomerTelNo" column="CUSTOMER_TEL_NO" />
+			<result property="ProvinceID" column="PROVINCE_ID" />
+			<result property="DistrictID" column="DISTRICT_ID" />
+			<result property="CommuneID" column="COMMUNE_ID" />
+			<result property="Amount" column="AMOUNT" />
+			<result property="Price" column="PRICE" />
+			<result property="OrderDate" column="ORDER_DATE" />
+		</resultMap>
+	</resultMaps>
+
+	<statements>
+		<statement id="AddNewOrder" resultMap="OrderInfoEntity">
+			INSERT INTO TB_ORDER_INFO
+			(ITEM_ID
+			,CUSTOMER_TEL_NO
+			,PROVINCE_ID
+			,DISTRICT_ID
+			,COMMUNE_ID
+			,AMOUNT
+			,PRICE
+			,ORDER_DATE
+			)
+			VALUES
+			(#ITEM_ID#
+			,#CUSTOMER_TEL_NO#
+			,#PROVINCE_ID#
+			,#DISTRICT_ID#
+			,#COMMUNE_ID#
+			,#AMOUNT#
+			,#PRICE#
+			,#ORDER_DATE#
+			)
+		</statement>
+	</statements>
+</sqlMap>

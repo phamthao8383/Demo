@@ -1,0 +1,10 @@
+﻿CREATE TABLE [dbo].[TB_ORDER_INFO] (
+    [ID]           INT        IDENTITY (1, 1) NOT NULL,
+    [ITEM_ID]      INT        NOT NULL,
+    [PHONE_NUMBER] NCHAR (15) NULL,
+    [AMOUNT]       INT        NULL,
+    [PRICE]        MONEY      NULL,
+    [ORDER_DATE]   DATE       NULL,
+    CONSTRAINT [FK_TB_ORDER_INFO_TB_ITEM_INFO] FOREIGN KEY ([ITEM_ID]) REFERENCES [dbo].[TB_ITEM_INFO] ([ID])
+);
+

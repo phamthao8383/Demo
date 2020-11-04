@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<sqlMap namespace="ShopBridgeWcf" xmlns="http://ibatis.apache.org/mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<alias>
+		<typeAlias alias="OrderInfoEntity" type="ShopBridgeWcf.Models.Entity.OrderInfoEntity, ShopBridgeWcf"/>
+	</alias>
+	<resultMaps>
+		<resultMap id="OrderInfoEntity" class="OrderInfoEntity">
+			<result property="ItemID" column="ITEM_ID" />
+			<result property="PhoneNumber" column="PHONE_NUMBER" />
+			<result property="Amount" column="AMOUNT" />
+			<result property="Price" column="PRICE" />
+			<result property="OrderDate" column="ORDER_DATE" />
+		</resultMap>
+	</resultMaps>
+
+	<statements>
+		<statement id="AddNewOrder" parameterClass="OrderInfoEntity">
+			INSERT INTO TB_ORDER_INFO
+			(ITEM_ID
+			,PHONE_NUMBER
+			,AMOUNT
+			,PRICE
+			,ORDER_DATE
+			)
+			VALUES
+			(#ItemID#
+			,#PhoneNumber#
+			,#Amount#
+			,#Price#
+			,#OrderDate#
+			)
+		</statement>
+	</statements>
+</sqlMap>

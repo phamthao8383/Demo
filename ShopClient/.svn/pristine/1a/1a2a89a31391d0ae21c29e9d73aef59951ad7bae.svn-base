@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[Table_Brand] (
+    [BrandID]        NVARCHAR (10)  NOT NULL,
+    [BrandName]      NVARCHAR (50)  NULL,
+    [BrandDecs]      NVARCHAR (MAX) NULL,
+    [BrandAddOfices] NVARCHAR (MAX) NULL,
+    CONSTRAINT [PK_Table_Brand] PRIMARY KEY CLUSTERED ([BrandID] ASC)
+);
+

@@ -1,0 +1,227 @@
+﻿using IBatisNet.DataMapper;
+using ShopClient_MVC.Models;
+using ShopClient_MVC.ShopServiceReference;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Mvc;
+
+
+namespace ShopClient_MVC.Controllers
+{
+    public class CustomerController : Controller
+    {
+        private static int itemID = 0;
+        private static int buyAmount = 0;
+
+        #region Controller Method
+        // GET: Customer
+        public ActionResult Index()
+        {
+            List<SelectListItem> selectListItems = new List<SelectListItem>();
+            var provinceList = GetAllProvinceEntity();
+
+            //add default element, it can't select
+            selectListItems.Add(new SelectListItem
+            {
+                Value = "-1",
+                Text = "Chọn Tỉnh/Thành Phố",
+                Selected = true,
+                Disabled = true
+            });
+
+            if (provinceList.Any())
+            {
+                foreach (var provinceitem in provinceList)
+                {
+                    selectListItems.Add(new SelectListItem
+                    {
+                        Value = provinceitem.ID.ToString(),
+                        Text = provinceitem.Name
+                    });
+                }
+            }
+            ViewBag.ProvinceList = selectListItems;
+
+            var item = GetAllItemEntity().Where(x => x.ID == itemID).FirstOrDefault();
+            ViewData["item"] = item;
+            ViewData["Amount"] = buyAmount;
+
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult Index(FormCollection collection)
+        {
+            var customer = new Customer
+            {
+                Gender = collection["rdbtGender"].ToLower() == "male",
+                Name = collection["txtcustommerName"],
+                PhoneNumber = collection["txtPhoneNumber"],
+                Address = $"{collection["ddlProvince"]}-{collection["ddlDistrict"]}-{collection["ddlCommune"]}"
+            };
+
+            var order = new OrderInfoEntity
+            {
+                ItemID = Int32.Parse(collection["for_itemID"]),
+                PhoneNumber = collection["txtPhoneNumber"],
+                Amount = Int32.Parse(collection["for_txtBuyAmount"]),
+                Price = Decimal.Parse(collection["for_txtTotalPrice"]),
+                OrderDate = DateTime.Now
+            };
+
+            // check customer info is exist where  PhoneNumber;
+            Dictionary<string, object> param = new Dictionary<string, object>();
+            param.Add("phoneNO", customer.PhoneNumber);
+            var client = new ShopServiceClient();
+            try
+            {
+                var findcustomer = mapper.QueryForList<Customer>("FindCustomerEntity", param);
+                if (findcustomer != null && findcustomer.Any())
+                {
+                    // update customer info
+                    mapper.Update("UpdateCustomerEntity", customer);
+                }
+                else
+                {
+                    //Insert new customer
+                    mapper.Insert("AddNewCustomerEntity", customer);
+                }
+                string inform = client.AddNewOrderInfo(order);
+                ViewBag.OrderResult = inform;
+            }
+            catch (Exception ex)
+            {
+                ViewBag.OrderResult = "[ERR] Lỗi hệ thống";
+            }
+            finally
+            {
+                client.Close();
+            }
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public ActionResult AjaxGetDistrictByProvice(int provinceID)
+        {
+            List<District> listFindDistrict = null;
+            try
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+
+                // add provinceId into sql query to coditon
+                parameters.Add("IDProvince", provinceID);
+
+                listFindDistrict = mapper.QueryForList<District>("FindDistrictEntity", parameters).ToList();
+            }
+            catch (Exception ex)
+            {
+                listFindDistrict = new List<District>();
+            }
+
+            return Json(new SelectList(listFindDistrict, "ID", "Name"));
+        }
+
+        [HttpPost]
+        public ActionResult AjaxGetCommuneByDistrict(int districtID)
+        {
+            List<Commune> listFindcommune = null;
+            try
+            {
+                IDictionary<string, object> parameters = new Dictionary<string, object>();
+
+                // add provinceId into sql query to coditon
+                parameters.Add("IDDistrict", districtID);
+
+                listFindcommune = mapper.QueryForList<Commune>("FindCommuneEntity", parameters).ToList();
+            }
+            catch (Exception ex)
+            {
+                listFindcommune = new List<Commune>();
+            }
+
+            return Json(new SelectList(listFindcommune, "ID", "Name"));
+        }
+
+        [HttpPost]
+        public ActionResult AddNewOrder()
+        {
+            try
+            {
+                OrderInfoEntity order = new OrderInfoEntity();
+                ShopServiceClient client = new ShopServiceClient();
+                client.AddNewOrderInfo(order);
+            }
+            catch { }
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult OrderItem(FormCollection collection)
+        {
+            try {
+                // get itemInfo
+                itemID = Int32.Parse( collection["ID"]);
+                buyAmount = Int32.Parse(collection["hdBuyAmount"]);
+                
+            }
+            catch(Exception ex)
+            {
+                //nothing
+            }
+            return RedirectToAction("Index");
+        }
+        #endregion
+        static ISqlMapper mapper;
+        public CustomerController()
+        {
+            mapper = Mapper.Instance();
+            //load db config 
+            string con = System.Configuration.ConfigurationManager.ConnectionStrings["dbconnection"].ConnectionString;
+            //set db connectstring
+            mapper.DataSource.ConnectionString = con;
+        }
+        private static IList<Province> GetAllProvinceEntity()
+        {
+            try
+            {
+                return mapper.QueryForList<Province>("GetAllProvinceEntity", null);
+            }
+            catch (Exception ex)
+            {
+                return new List<Province>();
+                //throw ex;
+            }
+        }
+
+        private static IList<Province> FindDistricts(int provinceID)
+        {
+            try
+            {
+                return mapper.QueryForList<Province>("GetAllProvinceEntity", null);
+            }
+            catch (Exception ex)
+            {
+                return new List<Province>();
+            }
+        }
+        private static IList<Item> GetAllItemEntity()
+        {
+            try
+            {
+                ISqlMapper mapper = Mapper.Instance();
+                //load db config 
+                string con = System.Configuration.ConfigurationManager.ConnectionStrings["dbconnection"].ConnectionString;
+                //set db connectstring
+                mapper.DataSource.ConnectionString = con;
+                return mapper.QueryForList<Item>("GetAllItemEntity", null);
+            }
+            catch (Exception ex)
+            {
+                return new List<Item>();
+                //throw ex;
+            }
+        }
+    }
+}

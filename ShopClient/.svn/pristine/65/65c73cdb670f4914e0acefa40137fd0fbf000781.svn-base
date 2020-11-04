@@ -1,0 +1,51 @@
+﻿using IBatisNet.DataMapper;
+using ShopClient_MVC.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+
+namespace ShopClient_MVC.Controllers
+{
+    public class HomeController : Controller
+    {
+        public ActionResult Index()
+        {
+            var itemList = GetAllItemEntity();
+            return View(itemList);
+        }
+
+        public ActionResult About()
+        {
+            ViewBag.Message = "Your application description page.";
+
+            return View();
+        }
+
+        public ActionResult Contact()
+        {
+            ViewBag.Message = "Your contact page.";
+
+            return View();
+        }
+
+        private static IList<Item> GetAllItemEntity()
+        {
+            try
+            {
+                ISqlMapper mapper = Mapper.Instance();
+                //load db config 
+                string con = System.Configuration.ConfigurationManager.ConnectionStrings["dbconnection"].ConnectionString;
+                //set db connectstring
+                mapper.DataSource.ConnectionString = con;
+                return mapper.QueryForList<Item>("GetAllItemEntity", null);
+            }
+            catch (Exception ex)
+            {
+                return new List<Item>();
+                //throw ex;
+            }
+        }
+    }
+}
